@@ -8,7 +8,8 @@ ui <- fluidPage(
                   choices = c("mtcars", "iris"))
     ),
     mainPanel(
-      tableOutput("table")
+      tableOutput("table"),
+      plotOutput("plot")
     )
   )
 )
@@ -17,6 +18,14 @@ server <- function(input, output) {
   output$table <- renderTable({
     get(input$dataset)
   }, striped = TRUE)
+  
+  output$plot <- renderPlot({
+    if (input$dataset == "mtcars") {
+      ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point()
+    } else {
+      ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width, color = Species)) + geom_point()
+    }
+  })
 }
 
 shinyApp(ui = ui, server = server)
