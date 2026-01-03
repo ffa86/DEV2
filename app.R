@@ -8,11 +8,15 @@ ui <- fluidPage(
   sidebarLayout(
     sidebarPanel(
       selectInput("dataset", "Choisir un jeu de données :",
-                  choices = c("mtcars", "iris"))
+                  choices = c("mtcars", "iris")),
+      textOutput("nbre_records")
     ),
     mainPanel(
-      tableOutput("table"),
-      plotOutput("plot")
+      tabsetPanel(
+        tabPanel("Données", tableOutput("table")),
+        tabPanel("Graphique", plotOutput("plot")),
+        tabPanel("Dictionnaire", tableOutput("data_dictionary"))  # Nouvel onglet
+      )
     )
   )
 )
@@ -34,6 +38,18 @@ server <- function(input, output) {
       ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width, color = Species)) + geom_point()
     }
   })
+  
+  output$nbre_records <- renderText({
+    dataset <- get(input$dataset)
+    paste("Nbre de records :", nrow(dataset))  # Affiche le nombre de lignes
+  })
+  
+  # Ajout : dictionnaire des données
+  output$data_dictionary <- renderTable({
+    dataset <- get(input$dataset)
+    generate_data_dictionary(dataset)
+  }, striped = TRUE)
+  
 }
 
 
